@@ -1,0 +1,4 @@
+user_id,recipe_id,ratings,favorite
+10,57,5,TRUE
+11,55,4,FALSE
+12,56,3,TRUE
