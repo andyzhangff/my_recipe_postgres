@@ -4,9 +4,9 @@ SELECT u.username,
        description,
        category,
        image,
-       recipes.id
-FROM recipes
-         JOIN users u on recipes.owner_id = u.id
+       recipes_title.id
+FROM recipes_title
+         JOIN users u on recipes_title.owner_id = u.id
 OFFSET 0
 LIMIT 10
 

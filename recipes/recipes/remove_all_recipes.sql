@@ -1,1 +1,1 @@
-DELETE FROM recipes;
+DELETE FROM recipes_title;

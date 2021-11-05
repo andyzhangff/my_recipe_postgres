@@ -1,1 +1,1 @@
-UPDATE recipes set title='test333', description='333too' WHERE id=1;
+UPDATE recipes_title set title='test333', description='333too' WHERE id=1;

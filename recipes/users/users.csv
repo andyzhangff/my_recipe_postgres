@@ -1,4 +1,4 @@
-﻿username,email,password,role_id
-andyzhangff,m13816475399@gmail.com,andy@1987,1
-zoez,zoe@gmail.com,zoe@1988,2
-maolao,maolao@gmail.com,maolao@1962,3
+﻿username,email,password,role_id,avatar
+andyzhangff,m13816475399@gmail.com,andy@1987,4,https://gravatar.com/avatar/1c34c7c84bed4df4db76437afc04adfd?s=400&d=robohash&r=x
+zoez,zoe@gmail.com,zoe@1988,5,https://robohash.org/1c34c7c84bed4df4db76437afc04adfd?set=set4&bgset=&size=400x400
+maolao,maolao@gmail.com,maolao@1962,6,https://avatars.dicebear.com/v2/female/1c34c7c84bed4df4db76437afc04adfd.svg
