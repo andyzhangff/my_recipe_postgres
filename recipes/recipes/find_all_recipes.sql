@@ -6,7 +6,7 @@ SELECT u.username,
        image,
        recipes_title.id
 FROM recipes_title
-         JOIN users u on recipes_title.owner_id = u.id
+         JOIN users u on recipes_title.owner = u.id
 OFFSET 0
 LIMIT 10
 
