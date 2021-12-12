@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.0
--- Dumped by pg_dump version 14.0
+-- Dumped from database version 14.1
+-- Dumped by pg_dump version 14.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -185,9 +185,9 @@ ALTER SEQUENCE public.labels_id_seq OWNED BY public.labels.id;
 CREATE TABLE public.ratings (
     id bigint NOT NULL,
     "user" character varying(255) NOT NULL,
-    recipe_id bigint NOT NULL,
     ratings integer NOT NULL,
     favorite boolean DEFAULT false NOT NULL,
+    recipe_id integer NOT NULL,
     CONSTRAINT ratings_ratings_check CHECK (((ratings >= 1) AND (ratings <= 10)))
 );
 
@@ -257,8 +257,8 @@ ALTER SEQUENCE public."recipe-ingredients_id_seq" OWNED BY public.recipe_ingredi
 
 CREATE TABLE public.recipe_labels (
     id integer NOT NULL,
-    recipe_id bigint NOT NULL,
-    label character varying(255) NOT NULL
+    label character varying(255) NOT NULL,
+    recipe_id integer NOT NULL
 );
 
 
@@ -291,22 +291,22 @@ ALTER SEQUENCE public.recipe_labels_id_seq OWNED BY public.recipe_labels.id;
 --
 
 CREATE TABLE public.recipes_title (
-    id integer NOT NULL,
     title character varying(50) NOT NULL,
     description character varying(500),
     category character varying(50) NOT NULL,
     image character varying(255) NOT NULL,
-    owner character varying(255) NOT NULL
+    owner character varying(255) NOT NULL,
+    id integer NOT NULL
 );
 
 
 ALTER TABLE public.recipes_title OWNER TO postgres;
 
 --
--- Name: recipes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: recipes_title_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE public.recipes_id_seq
+CREATE SEQUENCE public.recipes_title_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -315,13 +315,13 @@ CREATE SEQUENCE public.recipes_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.recipes_id_seq OWNER TO postgres;
+ALTER TABLE public.recipes_title_id_seq OWNER TO postgres;
 
 --
--- Name: recipes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: recipes_title_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE public.recipes_id_seq OWNED BY public.recipes_title.id;
+ALTER SEQUENCE public.recipes_title_id_seq OWNED BY public.recipes_title.id;
 
 
 --
@@ -383,10 +383,10 @@ CREATE TABLE public.shopping_cart_detail (
     username character varying NOT NULL,
     ingredient_name character varying NOT NULL,
     ingredient_quantity integer NOT NULL,
-    recipe_id integer NOT NULL,
     ingredient_image character varying,
     ingredient_price integer NOT NULL,
-    container character varying NOT NULL
+    container character varying NOT NULL,
+    recipe_id integer NOT NULL
 );
 
 
@@ -445,7 +445,7 @@ CREATE TABLE public.steps (
     description character varying(500) NOT NULL,
     image character varying,
     steps_number integer NOT NULL,
-    recipe_id bigint NOT NULL
+    recipe_id integer NOT NULL
 );
 
 
@@ -563,7 +563,7 @@ ALTER TABLE ONLY public.recipe_labels ALTER COLUMN id SET DEFAULT nextval('publi
 -- Name: recipes_title id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.recipes_title ALTER COLUMN id SET DEFAULT nextval('public.recipes_id_seq'::regclass);
+ALTER TABLE ONLY public.recipes_title ALTER COLUMN id SET DEFAULT nextval('public.recipes_title_id_seq'::regclass);
 
 
 --
@@ -629,7 +629,7 @@ COPY public.ingredient_price (id, ingredient, container, price) FROM stdin;
 24	rice	gram	8
 23	garlic	kilo	3
 27	pepper	spoon	6
-31	sugar	pound	10
+31	sugar	spoon	22
 \.
 
 
@@ -669,18 +669,18 @@ COPY public.labels (id, name, image) FROM stdin;
 -- Data for Name: ratings; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.ratings (id, "user", recipe_id, ratings, favorite) FROM stdin;
-27	maolao	50	8	t
-30	maolao	43	3	t
-32	zoez	68	4	t
-33	maolao	66	5	t
-34	andyzhangff	64	2	f
-35	zoez	47	3	t
-37	andyzhangff	42	4	t
-38	zoez	46	5	t
-39	maolao	64	4	t
-31	andyzhangff	40	3	t
-36	andyzhangff	45	3	t
+COPY public.ratings (id, "user", ratings, favorite, recipe_id) FROM stdin;
+39	maolao	1	t	1
+40	maolao	3	t	2
+41	zoez	4	t	3
+42	maolao	5	t	4
+43	andyzhangff	2	f	5
+44	zoez	3	t	6
+45	andyzhangff	4	t	7
+46	zoez	5	t	8
+47	maolao	4	t	9
+48	andyzhangff	3	t	10
+49	andyzhangff	3	t	11
 \.
 
 
@@ -689,64 +689,64 @@ COPY public.ratings (id, "user", recipe_id, ratings, favorite) FROM stdin;
 --
 
 COPY public.recipe_ingredients (id, ingredient, quantity, container, recipe_id) FROM stdin;
-281	salt	11	pound	67
-263	rice	11	gram	55
-292	garlic	99	bottle	56
-272	garlic	11	spoon	46
-294	sugar	77	pound	54
-289	lamb	22	bottle	59
-277	beef	3	piece	41
-300	tomato	9	bottle	48
-268	chicken	3	gram	50
-269	lamb	2	pound	49
-284	sugar	88	spoon	64
-267	beef	77	pound	51
-297	beef	22	gram	51
-258	chicken	77	piece	60
-251	salt	2	pound	67
-260	tomato	2	piece	58
-256	pepper	99	spoon	62
-257	beef	88	bottle	61
-273	rice	9	bottle	45
-271	salt	22	spoon	47
-254	sugar	11	pound	64
-290	tomato	11	kilo	58
-279	lamb	22	kilo	39
-291	salt	9	piece	57
-253	rice	22	bottle	65
-309	lamb	9	spoon	39
-288	chicken	22	kilo	60
-301	salt	99	kilo	47
-286	pepper	3	kilo	62
-299	lamb	11	bottle	49
-293	rice	88	kilo	55
-266	pepper	88	bottle	52
-307	beef	22	spoon	41
-306	pepper	22	kilo	42
-296	pepper	2	piece	52
-275	oil	88	pound	43
-283	rice	99	piece	65
-295	oil	3	gram	53
-270	tomato	22	bottle	48
-252	garlic	22	spoon	66
-304	sugar	3	bottle	44
-280	tomato	22	gram	68
-302	garlic	88	piece	46
-303	rice	77	piece	45
-278	chicken	2	gram	40
-298	chicken	22	spoon	50
-264	sugar	9	gram	54
-308	chicken	11	kilo	40
-305	oil	2	kilo	43
-250	tomato	3	pound	68
-287	beef	2	gram	61
-265	oil	99	gram	53
-276	pepper	77	gram	42
-262	garlic	22	pound	56
-274	sugar	99	pound	44
-282	garlic	9	spoon	66
-259	lamb	3	piece	59
-261	salt	22	kilo	57
+310	salt	11	pound	1
+311	rice	11	gram	2
+312	garlic	99	bottle	3
+313	garlic	11	spoon	4
+314	sugar	77	pound	5
+315	lamb	22	bottle	6
+316	beef	3	piece	7
+317	tomato	9	bottle	8
+318	chicken	3	gram	9
+319	lamb	2	pound	10
+320	sugar	88	spoon	11
+321	beef	77	pound	12
+322	beef	22	gram	13
+323	chicken	77	piece	14
+324	salt	2	pound	15
+325	tomato	2	piece	16
+326	pepper	99	spoon	17
+327	beef	88	bottle	18
+328	rice	9	bottle	19
+329	salt	22	spoon	20
+330	sugar	11	pound	21
+331	tomato	11	kilo	22
+332	lamb	22	kilo	23
+333	salt	9	piece	24
+334	rice	22	bottle	25
+335	lamb	9	spoon	26
+336	chicken	22	kilo	27
+337	salt	99	kilo	28
+338	pepper	3	kilo	29
+339	lamb	11	bottle	1
+340	rice	88	kilo	2
+341	pepper	88	bottle	3
+342	beef	22	spoon	4
+343	pepper	22	kilo	5
+344	pepper	2	piece	6
+345	oil	88	pound	7
+346	rice	99	piece	8
+347	oil	3	gram	9
+348	tomato	22	bottle	10
+349	garlic	22	spoon	11
+350	sugar	3	bottle	12
+351	tomato	22	gram	13
+352	garlic	88	piece	14
+353	rice	77	piece	15
+354	chicken	2	gram	16
+355	chicken	22	spoon	17
+356	sugar	9	gram	18
+357	chicken	11	kilo	19
+358	oil	2	kilo	20
+359	tomato	3	pound	21
+360	beef	2	gram	22
+361	oil	99	gram	23
+362	pepper	77	gram	24
+363	garlic	22	pound	25
+364	sugar	99	pound	26
+365	garlic	9	spoon	27
+366	lamb	3	piece	28
+367	salt	22	kilo	29
 \.
 
 
@@ -754,36 +754,36 @@ COPY public.recipe_ingredients (id, ingredient, quantity, container, recipe_id) 
 -- Data for Name: recipe_labels; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.recipe_labels (id, recipe_id, label) FROM stdin;
-32	40	beef
-33	41	soup
-44	52	beef
-54	62	fried
-58	66	spicy
-39	47	soup
-49	57	chicken
-45	53	soup
-48	56	fried
-34	42	spicy
-60	68	fried
-40	48	spicy
-46	54	spicy
-35	43	noodle
-36	44	fried
-31	39	chicken
-42	50	fried
-37	45	chicken
-53	61	noodle
-43	51	chicken
-38	46	beef
-50	58	beef
-59	67	noodle
-51	59	soup
-57	65	soup
-56	64	beef
-52	60	spicy
-41	49	noodle
-47	55	noodle
+COPY public.recipe_labels (id, label, recipe_id) FROM stdin;
+61	beef	1
+62	soup	2
+63	beef	3
+64	fried	4
+65	spicy	5
+66	soup	6
+67	chicken	7
+68	soup	8
+69	fried	9
+70	spicy	10
+71	fried	11
+72	spicy	12
+73	spicy	13
+74	noodle	14
+75	fried	15
+76	chicken	16
+77	fried	17
+78	chicken	18
+79	noodle	19
+80	chicken	20
+81	beef	21
+82	beef	22
+83	noodle	23
+84	soup	24
+85	soup	25
+86	beef	26
+87	spicy	27
+88	noodle	28
+89	noodle	29
 \.
 
 
@@ -791,36 +791,36 @@ COPY public.recipe_labels (id, recipe_id, label) FROM stdin;
 -- Data for Name: recipes_title; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.recipes_title (id, title, description, category, image, owner) FROM stdin;
-41	Noodle3	In id sem vel sapien blandit porta ut in nisi. Duis consectetur neque metus, eu tempus leo rhoncus in. Aenean dictum quis lectus vitae ullamcorper. Vivamus ultricies risus leo, quis pellentesque	noodle	https://i.picsum.photos/id/640/250/150.jpg?hmac=xMXA2zfjFDGXCgvOIc9oUDscYbIsw7RDDxa5XkmrU2Q	andyzhangff
-54	Chicken6	tae urna at leo vestibulum eleifend vel a leo. Maecenas nec ipsum interdum, blandit orci sit amet, porta justo. Vestibulum sed odio at orci accumsan malesuada vel ut augue. Phasell	chicken	https://i.picsum.photos/id/45/250/150.jpg?hmac=EUnK4OS7VdgEPzDqWCEamoOHZSTQTeE6xlQBvDa0wkU	maolao
-58	Chicken10	fringilla nisl, eget commodo metus tortor ut nibh. Sed accumsan, nisi sit amet viverra finibus, nisl lectus accumsan dui, posuere rhoncus dolor lacus nec ipsum. Cras va	chicken	https://i.picsum.photos/id/473/250/150.jpg?hmac=PTp8-TxgZx4wq2GIvCdPp3OJLPrFZSte9ysP8hSuQnk	zoez
-50	Chicken2	us. Fusce eget fermentum mi. Pellentesque porta commodo leo, in euismod leo ultricies maximus. Curabitur vel accumsan ipsum, rutrum ullamcorper neque. Vestibu	chicken	https://i.picsum.photos/id/156/250/150.jpg?hmac=BaD8kY9PKlyuL6kEFS0ua6wC1wWPQbVYxTzkulC0ZeU	maolao
-51	Chicken3	ellus venenatis nec odio vel tempus. Nam auctor risus lorem, hendrerit ullamcorper lorem dapibus eu. Aenean eget nisi a massa volutpat posuere. Sed tempus eleifend libero vel com	chicken	https://i.picsum.photos/id/371/250/150.jpg?hmac=KCvTiKcIQQ1sMcMvbV3ljwEbPk4TL8qvzoiPA1k8yN0	andyzhangff
-61	Beef3	odales, urna non efficitur malesuada, ex risus sollicitudin lectus, et rhoncus arcu eros a libero. Cras vestibulum rutrum risus eu efficitur. Maecenas at mollis	beef	https://i.picsum.photos/id/604/250/150.jpg?hmac=n4kx5Ri31WjcpiWuDg68UcPyXzQbhE7s9VY_EB-e0II	andyzhangff
-43	Noodle5	Sed porttitor ullamcorper ex quis condimentum. Ut nibh nisi, gravida eget nisi id, mollis cursus lectus. Phasellus a massa eleifend, imperdiet eros nec, tristique ligula. Donec co	noodle	https://i.picsum.photos/id/942/250/150.jpg?hmac=aaMfer_m_gJt-Tb-kUKPOwWlTyG40p7YBBvtvaspKFA	andyzhangff
-40	Noodle2	Curabitur viverra convallis est, in rhoncus felis aliquam nec. Fusce vulputate turpis velit, non auctor ex tristique eget. Curabitur pharetra sit amet dui at semper. Cras eleifend sagittis lorem, in iaculis lor	noodle	https://i.picsum.photos/id/273/250/150.jpg?hmac=v9j-RTp2NGIbcnfzo1wCMaL0iARYj1bCyb_FdOlS_84	andyzhangff
-68	Beef10	bitur nec pulvinar diam. Maecenas rhoncus et sapien a venenatis. Duis commodo tellus at purus pellentesque, nec malesuada libero ultrices. Sed euismod l	beef	https://i.picsum.photos/id/1012/250/150.jpg?hmac=MhWt7YRsrKalhTINzd3G4WTqz_HXpB9Kml9HAeO5-ks	maolao
-66	Beef8	s a aliquet convallis, facilisis eget purus. Etiam vestibulum rhoncus neque, vitae lobortis tortor finibus eu. In porta dui non libero vulputate, at tempor purus maximus.	beef	https://i.picsum.photos/id/213/250/150.jpg?hmac=9nwGSfHAmQ7s6SvNI2mrYAyVml_3XTsdytTb8QJG5bA	andyzhangff
-64	Beef6	am vel magna nunc. Praesent vehicula lorem auctor odio semper, quis mattis ar	beef	https://i.picsum.photos/id/992/250/150.jpg?hmac=qzIMVFM4MdgozyKtrJzxq6bFjnwj7MADEPPRyio4uvA	andyzhangff
-47	Noodle9	Cras sodales, risus non vehicula feugiat, eros augue pharetra justo, eget elementum justo nisi nec ligula. Sed placerat felis sit amet ipsum venenatis sollicitudin. Mauris sit amet mau	noodle	https://i.picsum.photos/id/1062/250/150.jpg?hmac=WEDSJ0P4nqcQlh9q_Px68GK74BDqbSUYomRbYnbStIo	zoez
-45	Noodle7	Sed luctus nibh id ullamcorper facilisis. Aliquam placerat diam enim, non ultrices ex consequat eu. Maecenas fermentum diam leo, eu accumsan mauris tincidunt vitae. Do	noodle	https://i.picsum.photos/id/838/250/150.jpg?hmac=6k77YyIc7mFRuNn7f0FpQVqfpnW-LzefuD349sgz2Iw	zoez
-46	Noodle8	Nunc tempor justo est, at semper ligula venenatis sed. Sed ultrices sem quam, eget ullamcorper sapien semper nec. Praesent bibendum sem a purus tristique, in mal	noodle	https://i.picsum.photos/id/873/250/150.jpg?hmac=tu-tIPA9t1_0BG1EYZvtRERbYJsTDgm9or2qslYGFhg	andyzhangff
-65	Beef7	ero velit, et congue risus placerat nec. Praesent non quam molestie, euismod nunc vitae, pharetra nulla. Aenean vitae ultrices neque, nec elementum m	beef	https://i.picsum.photos/id/260/250/150.jpg?hmac=G49upo_hfLexlhljyQUMYRghW5Jo0CLPakAWfuzaEBE	maolao
-62	Beef4	Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean quam arcu, commodo eu rhoncus eu, pr	beef	https://i.picsum.photos/id/6/250/150.jpg?hmac=HhlpSgw60utnQaFfo6RCiJWst428ZYaWmOPTgocaL_E	maolao
-52	Chicken4	on massa ultricies, euismod velit id, laoreet dui. Phasellus et diam eget enim accumsan bibendum. Nulla facilisi. Aliquam posuere ante libero, sed bibendum nibh elemen	chicken	https://i.picsum.photos/id/672/250/150.jpg?hmac=oW47T00M0_DmY8znVIqjkhQuZQHEzG4erscGCO6XZyg	zoez
-53	Chicken5	Etiam id nibh nec ante eleifend condimentum. Praesent eros lacus, imperdiet a nisi non, interdum sollicitudin risus. Vestibulum vehicula iaculis dolor, at bibendum lor	chicken	https://i.picsum.photos/id/385/250/150.jpg?hmac=yUYC8W2h5XDhW90N-yVtan6XRIqAwbCX7naI7TFsVPE	zoez
-48	Noodle10	at blandit ex nisl vitae felis. Sed cursus nec ex non cursus. Suspendisse vitae egestas libero. Fusce laoreet nulla nec lorem mollis ornare. In hac habitasse platea dict	noodle	https://i.picsum.photos/id/237/250/150.jpg?hmac=43EMcrOyJ-hIu7amlRAysS8kt4FcDPnf1XDzAjIqy90	zoez
-49	Chicken1	aecenas hendrerit nisi in condimentum dictum. Nam tincidunt, dui in egestas gravida, mauris sem molestie odio, at tempus lorem est quis velit. Phasellus vitae consequat ips	chicken	https://i.picsum.photos/id/607/250/150.jpg?hmac=G_e4CPIDOhukq55HMLlDiR1RjQCkvPiK0Nr-urh3f0g	zoez
-42	Noodle4	Phasellus id dapibus magna. Quisque gravida rhoncus dui nec placerat. Donec bibendum nisl quis dignissim semper. Donec cursus placerat ligula scelerisque malesuada. Ve	noodle	https://i.picsum.photos/id/696/250/150.jpg?hmac=lV6cSFhOR38MQIFSRZUSzlG4UADhjE55KY83jhMnnpM	andyzhangff
-57	Chicken9	t bibendum. Fusce rutrum, nibh ac facilisis posuere, velit massa aliquet sem, egestas blandit erat dui sit amet neque. Phasellus blandit placerat tincidun	chicken	https://i.picsum.photos/id/902/250/150.jpg?hmac=1DvxIkRQodn91LceW0Lz7K8ghKl6xk5CwrYKGMrforw	maolao
-60	Beef2	nec vestibulum diam convallis eget. Quisque ut pellentesque nunc. In hac habitasse platea dictumst. Etiam vulputate turpis mauris, a suscipit enim porttitor eu.	beef	https://i.picsum.photos/id/39/250/150.jpg?hmac=OUDZAqGkIf2mj18Z4jqRt7fwxp1y7bentfytBCebIq4	maolao
-44	Noodle6	Sed commodo, nibh vel suscipit molestie, sem libero lobortis lorem, eu accumsan leo lorem a arcu. Cras sed felis neque. Orci varius natoque penatibus et magnis dis partu	noodle	https://i.picsum.photos/id/864/250/150.jpg?hmac=M5OknDI6p8MDeqriif-TiJVGHJslFVCVjjP4HmTYZgE	andyzhangff
-39	Noodle1	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut risus vel lorem pulvinar vestibulum. Proin eget tincidunt nisl, quis ornare tortor. Sed porta convallis m	noodle	https://i.picsum.photos/id/458/250/150.jpg?hmac=QtTVZOFzTujCuGdA0DkjYwznNinWqYbwM1Yu7bphQEY	maolao
-55	Chicken7	ugiat eget eros condimentum porta. Vestibulum egestas mi eget erat lobortis volutpat ut sit amet dui. Vivamus rhoncus quam sit amet libero placerat	chicken	https://i.picsum.photos/id/133/250/150.jpg?hmac=n6BxBH1WRPkDDowe2zJXYK_pNtDBVC5BGfJ2qUTYNi8	andyzhangff
-59	Beef1	ugiat venenatis. Phasellus nec enim nec augue tincidunt euismod in quis magna. Aenean malesuada m	beef	https://i.picsum.photos/id/886/250/150.jpg?hmac=TDFac04bP0mx20PtICnTUzs_S6NKrNd7SwgMOBg_4W0	maolao
-67	Beef9	Donec at pharetra justo. Sed posuere, mi sit amet fringilla hendrerit, tortor n	beef	https://i.picsum.photos/id/545/250/150.jpg?hmac=ToFk90I6i7nBiou8pBm6KgbgdyVtCjJgX-xQP1quBQQ	zoez
-56	Chicken8	bus. Aliquam ipsum nisl, varius quis elementum vitae, accumsan vel lacus. Sed risus magna, ultrices sit amet varius sed, condimentum eget ligul	chicken	https://i.picsum.photos/id/640/250/150.jpg?hmac=xMXA2zfjFDGXCgvOIc9oUDscYbIsw7RDDxa5XkmrU2Q	maolao
+COPY public.recipes_title (title, description, category, image, owner, id) FROM stdin;
+Noodle3	In id sem vel sapien blandit porta ut in nisi. Duis consectetur neque metus, eu tempus leo rhoncus in. Aenean dictum quis lectus vitae ullamcorper. Vivamus ultricies risus leo, quis pellentesque	noodle	https://i.picsum.photos/id/640/250/150.jpg?hmac=xMXA2zfjFDGXCgvOIc9oUDscYbIsw7RDDxa5XkmrU2Q	andyzhangff	1
+Chicken6	tae urna at leo vestibulum eleifend vel a leo. Maecenas nec ipsum interdum, blandit orci sit amet, porta justo. Vestibulum sed odio at orci accumsan malesuada vel ut augue. Phasell	chicken	https://i.picsum.photos/id/45/250/150.jpg?hmac=EUnK4OS7VdgEPzDqWCEamoOHZSTQTeE6xlQBvDa0wkU	maolao	2
+Chicken10	fringilla nisl, eget commodo metus tortor ut nibh. Sed accumsan, nisi sit amet viverra finibus, nisl lectus accumsan dui, posuere rhoncus dolor lacus nec ipsum. Cras va	chicken	https://i.picsum.photos/id/473/250/150.jpg?hmac=PTp8-TxgZx4wq2GIvCdPp3OJLPrFZSte9ysP8hSuQnk	zoez	3
+Chicken2	us. Fusce eget fermentum mi. Pellentesque porta commodo leo, in euismod leo ultricies maximus. Curabitur vel accumsan ipsum, rutrum ullamcorper neque. Vestibu	chicken	https://i.picsum.photos/id/156/250/150.jpg?hmac=BaD8kY9PKlyuL6kEFS0ua6wC1wWPQbVYxTzkulC0ZeU	maolao	4
+Chicken3	ellus venenatis nec odio vel tempus. Nam auctor risus lorem, hendrerit ullamcorper lorem dapibus eu. Aenean eget nisi a massa volutpat posuere. Sed tempus eleifend libero vel com	chicken	https://i.picsum.photos/id/371/250/150.jpg?hmac=KCvTiKcIQQ1sMcMvbV3ljwEbPk4TL8qvzoiPA1k8yN0	andyzhangff	5
+Beef3	odales, urna non efficitur malesuada, ex risus sollicitudin lectus, et rhoncus arcu eros a libero. Cras vestibulum rutrum risus eu efficitur. Maecenas at mollis	beef	https://i.picsum.photos/id/604/250/150.jpg?hmac=n4kx5Ri31WjcpiWuDg68UcPyXzQbhE7s9VY_EB-e0II	andyzhangff	6
+Noodle5	Sed porttitor ullamcorper ex quis condimentum. Ut nibh nisi, gravida eget nisi id, mollis cursus lectus. Phasellus a massa eleifend, imperdiet eros nec, tristique ligula. Donec co	noodle	https://i.picsum.photos/id/942/250/150.jpg?hmac=aaMfer_m_gJt-Tb-kUKPOwWlTyG40p7YBBvtvaspKFA	andyzhangff	7
+Noodle2	Curabitur viverra convallis est, in rhoncus felis aliquam nec. Fusce vulputate turpis velit, non auctor ex tristique eget. Curabitur pharetra sit amet dui at semper. Cras eleifend sagittis lorem, in iaculis lor	noodle	https://i.picsum.photos/id/273/250/150.jpg?hmac=v9j-RTp2NGIbcnfzo1wCMaL0iARYj1bCyb_FdOlS_84	andyzhangff	8
+Beef10	bitur nec pulvinar diam. Maecenas rhoncus et sapien a venenatis. Duis commodo tellus at purus pellentesque, nec malesuada libero ultrices. Sed euismod l	beef	https://i.picsum.photos/id/1012/250/150.jpg?hmac=MhWt7YRsrKalhTINzd3G4WTqz_HXpB9Kml9HAeO5-ks	maolao	9
+Beef8	s a aliquet convallis, facilisis eget purus. Etiam vestibulum rhoncus neque, vitae lobortis tortor finibus eu. In porta dui non libero vulputate, at tempor purus maximus.	beef	https://i.picsum.photos/id/213/250/150.jpg?hmac=9nwGSfHAmQ7s6SvNI2mrYAyVml_3XTsdytTb8QJG5bA	andyzhangff	10
+Beef6	am vel magna nunc. Praesent vehicula lorem auctor odio semper, quis mattis ar	beef	https://i.picsum.photos/id/992/250/150.jpg?hmac=qzIMVFM4MdgozyKtrJzxq6bFjnwj7MADEPPRyio4uvA	andyzhangff	11
+Noodle9	Cras sodales, risus non vehicula feugiat, eros augue pharetra justo, eget elementum justo nisi nec ligula. Sed placerat felis sit amet ipsum venenatis sollicitudin. Mauris sit amet mau	noodle	https://i.picsum.photos/id/1062/250/150.jpg?hmac=WEDSJ0P4nqcQlh9q_Px68GK74BDqbSUYomRbYnbStIo	zoez	12
+Noodle7	Sed luctus nibh id ullamcorper facilisis. Aliquam placerat diam enim, non ultrices ex consequat eu. Maecenas fermentum diam leo, eu accumsan mauris tincidunt vitae. Do	noodle	https://i.picsum.photos/id/838/250/150.jpg?hmac=6k77YyIc7mFRuNn7f0FpQVqfpnW-LzefuD349sgz2Iw	zoez	13
+Noodle8	Nunc tempor justo est, at semper ligula venenatis sed. Sed ultrices sem quam, eget ullamcorper sapien semper nec. Praesent bibendum sem a purus tristique, in mal	noodle	https://i.picsum.photos/id/873/250/150.jpg?hmac=tu-tIPA9t1_0BG1EYZvtRERbYJsTDgm9or2qslYGFhg	andyzhangff	14
+Beef7	ero velit, et congue risus placerat nec. Praesent non quam molestie, euismod nunc vitae, pharetra nulla. Aenean vitae ultrices neque, nec elementum m	beef	https://i.picsum.photos/id/260/250/150.jpg?hmac=G49upo_hfLexlhljyQUMYRghW5Jo0CLPakAWfuzaEBE	maolao	15
+Beef4	Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean quam arcu, commodo eu rhoncus eu, pr	beef	https://i.picsum.photos/id/6/250/150.jpg?hmac=HhlpSgw60utnQaFfo6RCiJWst428ZYaWmOPTgocaL_E	maolao	16
+Chicken4	on massa ultricies, euismod velit id, laoreet dui. Phasellus et diam eget enim accumsan bibendum. Nulla facilisi. Aliquam posuere ante libero, sed bibendum nibh elemen	chicken	https://i.picsum.photos/id/672/250/150.jpg?hmac=oW47T00M0_DmY8znVIqjkhQuZQHEzG4erscGCO6XZyg	zoez	17
+Chicken5	Etiam id nibh nec ante eleifend condimentum. Praesent eros lacus, imperdiet a nisi non, interdum sollicitudin risus. Vestibulum vehicula iaculis dolor, at bibendum lor	chicken	https://i.picsum.photos/id/385/250/150.jpg?hmac=yUYC8W2h5XDhW90N-yVtan6XRIqAwbCX7naI7TFsVPE	zoez	18
+Noodle10	at blandit ex nisl vitae felis. Sed cursus nec ex non cursus. Suspendisse vitae egestas libero. Fusce laoreet nulla nec lorem mollis ornare. In hac habitasse platea dict	noodle	https://i.picsum.photos/id/237/250/150.jpg?hmac=43EMcrOyJ-hIu7amlRAysS8kt4FcDPnf1XDzAjIqy90	zoez	19
+Chicken1	aecenas hendrerit nisi in condimentum dictum. Nam tincidunt, dui in egestas gravida, mauris sem molestie odio, at tempus lorem est quis velit. Phasellus vitae consequat ips	chicken	https://i.picsum.photos/id/607/250/150.jpg?hmac=G_e4CPIDOhukq55HMLlDiR1RjQCkvPiK0Nr-urh3f0g	zoez	20
+Noodle4	Phasellus id dapibus magna. Quisque gravida rhoncus dui nec placerat. Donec bibendum nisl quis dignissim semper. Donec cursus placerat ligula scelerisque malesuada. Ve	noodle	https://i.picsum.photos/id/696/250/150.jpg?hmac=lV6cSFhOR38MQIFSRZUSzlG4UADhjE55KY83jhMnnpM	andyzhangff	21
+Chicken9	t bibendum. Fusce rutrum, nibh ac facilisis posuere, velit massa aliquet sem, egestas blandit erat dui sit amet neque. Phasellus blandit placerat tincidun	chicken	https://i.picsum.photos/id/902/250/150.jpg?hmac=1DvxIkRQodn91LceW0Lz7K8ghKl6xk5CwrYKGMrforw	maolao	22
+Beef2	nec vestibulum diam convallis eget. Quisque ut pellentesque nunc. In hac habitasse platea dictumst. Etiam vulputate turpis mauris, a suscipit enim porttitor eu.	beef	https://i.picsum.photos/id/39/250/150.jpg?hmac=OUDZAqGkIf2mj18Z4jqRt7fwxp1y7bentfytBCebIq4	maolao	23
+Noodle6	Sed commodo, nibh vel suscipit molestie, sem libero lobortis lorem, eu accumsan leo lorem a arcu. Cras sed felis neque. Orci varius natoque penatibus et magnis dis partu	noodle	https://i.picsum.photos/id/864/250/150.jpg?hmac=M5OknDI6p8MDeqriif-TiJVGHJslFVCVjjP4HmTYZgE	andyzhangff	24
+Noodle1	Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut risus vel lorem pulvinar vestibulum. Proin eget tincidunt nisl, quis ornare tortor. Sed porta convallis m	noodle	https://i.picsum.photos/id/458/250/150.jpg?hmac=QtTVZOFzTujCuGdA0DkjYwznNinWqYbwM1Yu7bphQEY	maolao	25
+Chicken7	ugiat eget eros condimentum porta. Vestibulum egestas mi eget erat lobortis volutpat ut sit amet dui. Vivamus rhoncus quam sit amet libero placerat	chicken	https://i.picsum.photos/id/133/250/150.jpg?hmac=n6BxBH1WRPkDDowe2zJXYK_pNtDBVC5BGfJ2qUTYNi8	andyzhangff	26
+Beef1	ugiat venenatis. Phasellus nec enim nec augue tincidunt euismod in quis magna. Aenean malesuada m	beef	https://i.picsum.photos/id/886/250/150.jpg?hmac=TDFac04bP0mx20PtICnTUzs_S6NKrNd7SwgMOBg_4W0	maolao	27
+Beef9	Donec at pharetra justo. Sed posuere, mi sit amet fringilla hendrerit, tortor n	beef	https://i.picsum.photos/id/545/250/150.jpg?hmac=ToFk90I6i7nBiou8pBm6KgbgdyVtCjJgX-xQP1quBQQ	zoez	28
+Chicken8	bus. Aliquam ipsum nisl, varius quis elementum vitae, accumsan vel lacus. Sed risus magna, ultrices sit amet varius sed, condimentum eget ligul	chicken	https://i.picsum.photos/id/640/250/150.jpg?hmac=xMXA2zfjFDGXCgvOIc9oUDscYbIsw7RDDxa5XkmrU2Q	maolao	29
 \.
 
 
@@ -840,7 +840,8 @@ COPY public.role (id, name, access) FROM stdin;
 --
 
 COPY public.shopping_cart (id, username, shoping_date, eat_time, recipe_id) FROM stdin;
-17	andyzhangff	2021-11-30	dinner	51
+23	andyzhangff	2021-12-03	dinner	1
+26	andyzhangff	2021-12-03	dinner	3
 \.
 
 
@@ -848,11 +849,11 @@ COPY public.shopping_cart (id, username, shoping_date, eat_time, recipe_id) FROM
 -- Data for Name: shopping_cart_detail; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.shopping_cart_detail (id, username, ingredient_name, ingredient_quantity, recipe_id, ingredient_image, ingredient_price, container) FROM stdin;
-11	andyzhangff	beef	77	51	https://i.picsum.photos/id/687/200/200.jpg?hmac=U-mrTuk3Y5M3brBJ76mYvaj-bZ3ggY1OD8YOIPw89uI	6	pound
-12	andyzhangff	beef	22	51	https://i.picsum.photos/id/687/200/200.jpg?hmac=U-mrTuk3Y5M3brBJ76mYvaj-bZ3ggY1OD8YOIPw89uI	6	gram
-13	andyzhangff	beef	77	51	https://i.picsum.photos/id/687/200/200.jpg?hmac=U-mrTuk3Y5M3brBJ76mYvaj-bZ3ggY1OD8YOIPw89uI	6	pound
-14	andyzhangff	beef	22	51	https://i.picsum.photos/id/687/200/200.jpg?hmac=U-mrTuk3Y5M3brBJ76mYvaj-bZ3ggY1OD8YOIPw89uI	6	gram
+COPY public.shopping_cart_detail (id, username, ingredient_name, ingredient_quantity, ingredient_image, ingredient_price, container, recipe_id) FROM stdin;
+19	andyzhangff	salt	11	https://i.picsum.photos/id/118/200/200.jpg?hmac=r_5sQuuYCa3xJmO_wafQe_A_P-F2Kimwk-48579v9uY	6	pound	1
+20	andyzhangff	lamb	11	https://i.picsum.photos/id/518/200/200.jpg?hmac=nY2cAnZ0_ItWhhAsJ_XL3RsNkDo7_zobodK8FWIoCDM	9	bottle	1
+21	andyzhangff	garlic	99	https://i.picsum.photos/id/28/200/200.jpg?hmac=eT-kjSvX_wh2uU3SYgAuRWjzo4ndNGimCCiNEaWlnOg	3	bottle	3
+22	andyzhangff	pepper	88	https://i.picsum.photos/id/170/200/200.jpg?hmac=2Xh3j3MMZE07_G7UDPgPRm557LRHzyFrkyeWRXdhdvU	6	bottle	3
 \.
 
 
@@ -861,64 +862,64 @@ COPY public.shopping_cart_detail (id, username, ingredient_name, ingredient_quan
 --
 
 COPY public.steps (id, description, image, steps_number, recipe_id) FROM stdin;
-14	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	1	39
-15	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	1	40
-16	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	1	41
-17	he majority have suffered alteration in some form, by injected humour, or randomised	\N	1	42
-18	 of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	1	43
-19	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the 	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	1	44
-20	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	1	45
-21	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	1	46
-22	. It uses a dictionary of over 200 Latin words, combined with a handful 	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	1	47
-23	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore 	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	1	48
-24	aliquip ex ea commodo co	\N	1	49
-25	xplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione volupta	\N	1	50
-26	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	1	51
-27	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	1	52
-28	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	1	53
-29	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	1	54
-30	he majority have suffered alteration in some form, by injected humour, or randomised	\N	1	55
-31	 of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	1	56
-32	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the 	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	1	57
-33	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	1	58
-34	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	1	59
-35	. It uses a dictionary of over 200 Latin words, combined with a handful 	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	1	60
-36	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore 	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	1	61
-37	aliquip ex ea commodo co	\N	1	62
-39	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	1	64
-40	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	1	65
-41	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	1	66
-42	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	1	67
-43	he majority have suffered alteration in some form, by injected humour, or randomised	\N	1	68
-44	 of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	2	39
-45	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the 	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	2	40
-46	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	2	41
-47	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	2	42
-48	. It uses a dictionary of over 200 Latin words, combined with a handful 	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	2	43
-49	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore 	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	2	44
-50	aliquip ex ea commodo co	\N	2	45
-51	xplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione volupta	\N	2	46
-52	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	2	47
-53	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	2	48
-54	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	2	49
-55	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	2	50
-56	he majority have suffered alteration in some form, by injected humour, or randomised	\N	2	51
-57	 of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	2	52
-58	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the 	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	2	53
-59	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	2	54
-60	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	2	55
-61	. It uses a dictionary of over 200 Latin words, combined with a handful 	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	2	56
-62	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore 	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	2	57
-63	aliquip ex ea commodo co	\N	2	58
-64	xplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione volupta	\N	2	59
-65	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	2	60
-66	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	2	61
-67	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	2	62
-69	he majority have suffered alteration in some form, by injected humour, or randomised	\N	2	64
-70	 of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	2	65
-71	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the 	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	2	66
-72	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	2	67
-73	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	2	68
+74	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	1	1
+75	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	1	2
+76	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	1	3
+77	he majority have suffered alteration in some form, by injected humour, or randomised	\N	1	4
+78	?of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	1	5
+79	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the?	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	1	6
+80	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	1	7
+81	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	1	8
+82	. It uses a dictionary of over 200 Latin words, combined with a handful?	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	1	9
+83	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore?	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	1	10
+84	aliquip ex ea commodo co	\N	1	11
+85	xplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione volupta	\N	1	12
+86	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	1	13
+87	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	1	14
+88	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	1	15
+89	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	1	16
+90	he majority have suffered alteration in some form, by injected humour, or randomised	\N	1	17
+91	?of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	1	18
+92	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the?	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	1	19
+93	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	1	20
+94	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	1	21
+95	. It uses a dictionary of over 200 Latin words, combined with a handful?	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	1	22
+96	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore?	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	1	23
+97	aliquip ex ea commodo co	\N	1	24
+98	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	1	25
+99	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	1	26
+100	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	1	27
+101	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	1	28
+102	he majority have suffered alteration in some form, by injected humour, or randomised	\N	1	29
+103	?of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	2	1
+104	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the?	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	2	2
+105	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	2	3
+106	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	2	4
+107	. It uses a dictionary of over 200 Latin words, combined with a handful?	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	2	5
+108	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore?	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	2	6
+109	aliquip ex ea commodo co	\N	2	7
+110	xplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione volupta	\N	2	8
+111	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	2	9
+112	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	2	10
+113	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	2	11
+114	pular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Lati	https://i.picsum.photos/id/305/200/200.jpg?hmac=GAm9fW477iVRZTOeQCdEqLVug4lTf8wnHHzLof8RbFQ	2	12
+115	he majority have suffered alteration in some form, by injected humour, or randomised	\N	2	13
+116	?of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	2	14
+117	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the?	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	2	15
+118	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	2	16
+119	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	2	17
+120	. It uses a dictionary of over 200 Latin words, combined with a handful?	https://i.picsum.photos/id/1076/200/200.jpg?hmac=KTOq4o7b6rXzwd8kYN0nWrPIeKI97mzxBdWhnn-o-Nc	2	18
+121	ate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore?	https://i.picsum.photos/id/426/200/200.jpg?hmac=5auPuax0L2lXSIX0eJ2Qxa3HzmGUHCrGDPIEMAWgw7o	2	19
+122	aliquip ex ea commodo co	\N	2	20
+123	xplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione volupta	\N	2	21
+124	isci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis	\N	2	22
+125	psum is that it has a more-or-less normal distribution of letters, as opposed to using 'C	https://i.picsum.photos/id/522/200/200.jpg?hmac=-4K81k9CA5C9S2DWiH5kP8rMvaAPk2LByYZHP9ejTjA	2	23
+126	el text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Variou	\N	2	24
+127	he majority have suffered alteration in some form, by injected humour, or randomised	\N	2	25
+128	?of classical Latin literature from 45 BC, making it over 2000 years old. Richard M	https://i.picsum.photos/id/209/200/200.jpg?hmac=hsby8v-4ueyQ64FWn-Eqn4P9AtOM7OCsjA_L8rxOwHM	2	26
+129	e Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the?	https://i.picsum.photos/id/679/200/200.jpg?hmac=sPsw4YJPQkWFqo2k5UycejGhY4UXvaDXStGmvJEhFBA	2	27
+130	se on the theory of ethics, very popular during the Renaissance. The first line of Lore	\N	2	28
+131	going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embar	https://i.picsum.photos/id/211/200/200.jpg?hmac=VJ4wl95YuQJMvM_1O83L3nSfTn20OxaVfWe0wNMZrIc	2	29
 \.
 
 
@@ -965,28 +966,28 @@ SELECT pg_catalog.setval('public.labels_id_seq', 13, true);
 -- Name: ratings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ratings_id_seq', 38, true);
+SELECT pg_catalog.setval('public.ratings_id_seq', 49, true);
 
 
 --
 -- Name: recipe-ingredients_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."recipe-ingredients_id_seq"', 309, true);
+SELECT pg_catalog.setval('public."recipe-ingredients_id_seq"', 367, true);
 
 
 --
 -- Name: recipe_labels_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.recipe_labels_id_seq', 60, true);
+SELECT pg_catalog.setval('public.recipe_labels_id_seq', 89, true);
 
 
 --
--- Name: recipes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: recipes_title_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.recipes_id_seq', 68, true);
+SELECT pg_catalog.setval('public.recipes_title_id_seq', 29, true);
 
 
 --
@@ -1000,21 +1001,21 @@ SELECT pg_catalog.setval('public.role_id_seq', 6, true);
 -- Name: shopping_cart_detail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.shopping_cart_detail_id_seq', 14, true);
+SELECT pg_catalog.setval('public.shopping_cart_detail_id_seq', 22, true);
 
 
 --
 -- Name: shopping_cart_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.shopping_cart_id_seq', 18, true);
+SELECT pg_catalog.setval('public.shopping_cart_id_seq', 26, true);
 
 
 --
 -- Name: steps_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.steps_id_seq', 73, true);
+SELECT pg_catalog.setval('public.steps_id_seq', 131, true);
 
 
 --
@@ -1057,14 +1058,6 @@ ALTER TABLE ONLY public.labels
 
 
 --
--- Name: ratings ratings_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.ratings
-    ADD CONSTRAINT ratings_pk PRIMARY KEY ("user", recipe_id);
-
-
---
 -- Name: recipe_ingredients recipe-ingredients_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1081,14 +1074,6 @@ ALTER TABLE ONLY public.recipe_labels
 
 
 --
--- Name: recipes_title recipes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.recipes_title
-    ADD CONSTRAINT recipes_pkey PRIMARY KEY (id);
-
-
---
 -- Name: recipes_title recipes_title_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1097,11 +1082,27 @@ ALTER TABLE ONLY public.recipes_title
 
 
 --
+-- Name: recipes_title recipes_title_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.recipes_title
+    ADD CONSTRAINT recipes_title_pk PRIMARY KEY (id);
+
+
+--
 -- Name: role role_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.role
     ADD CONSTRAINT role_pk PRIMARY KEY (name);
+
+
+--
+-- Name: shopping_cart_detail shopping_cart_detail_ingredient_name_username_recipe_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shopping_cart_detail
+    ADD CONSTRAINT shopping_cart_detail_ingredient_name_username_recipe_id_key UNIQUE (ingredient_name, username, recipe_id);
 
 
 --
@@ -1222,6 +1223,13 @@ CREATE UNIQUE INDEX recipe_labels_id_uindex ON public.recipe_labels USING btree 
 
 
 --
+-- Name: recipes_title_id_uindex; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX recipes_title_id_uindex ON public.recipes_title USING btree (id);
+
+
+--
 -- Name: role_name_uindex; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1287,11 +1295,11 @@ ALTER TABLE ONLY public.ingredient_price
 
 
 --
--- Name: ratings ratings_recipes_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: ratings ratings_recipes_title_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.ratings
-    ADD CONSTRAINT ratings_recipes_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
+    ADD CONSTRAINT ratings_recipes_title_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
 
 
 --
@@ -1319,11 +1327,11 @@ ALTER TABLE ONLY public.recipe_ingredients
 
 
 --
--- Name: recipe_ingredients recipe_ingredients_recipes_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: recipe_ingredients recipe_ingredients_recipes_title_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.recipe_ingredients
-    ADD CONSTRAINT recipe_ingredients_recipes_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
+    ADD CONSTRAINT recipe_ingredients_recipes_title_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
 
 
 --
@@ -1335,11 +1343,11 @@ ALTER TABLE ONLY public.recipe_labels
 
 
 --
--- Name: recipe_labels recipe_labels_recipes_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: recipe_labels recipe_labels_recipes_title_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.recipe_labels
-    ADD CONSTRAINT recipe_labels_recipes_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
+    ADD CONSTRAINT recipe_labels_recipes_title_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
 
 
 --
@@ -1391,11 +1399,11 @@ ALTER TABLE ONLY public.shopping_cart
 
 
 --
--- Name: steps steps_recipes_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: steps steps_recipes_title_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.steps
-    ADD CONSTRAINT steps_recipes_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
+    ADD CONSTRAINT steps_recipes_title_id_fk FOREIGN KEY (recipe_id) REFERENCES public.recipes_title(id);
 
 
 --
